@@ -1,63 +1,52 @@
 from torch.utils.data import Dataset
 
-class DialogDataset(Dataset):
-    def __init__(self, df, conf, tokenizer=None, max_len=1024):
+class DiasumDataset(Dataset):
+    def __init__(self, dataset, tokenizer=None, max_len=1024):
+        self.dataset = list(map(self.__proceed_dialogue, dataset['dialogue']))  
         self.tokenizer = tokenizer
         self.max_len = max_len
-        self.dialogs = []
-        self.conf = conf
-        self.__init_dialogs(df)
 
-    @staticmethod
-    def _fix_dialog(dialog):
-        return dialog.replace('<span class=participant_2>', '||').replace('</span><br />', ' ').replace('<span class=participant_1>', '||').replace('<br />', ' ')
-    
-    def _fix_persona(self, persona, label):
-        return persona.replace(f'<span class=participant_{label}>', self.conf[f'user{label}']).replace('<br />',' ').replace('</span>','')
-        
-    def __init_dialogs(self, df):
-        dialogs = []
-        for person1, person2, dialog in zip(df.persona_1_profile, df.persona_2_profile, df.dialogue):
-            dilogue = []
-            dilogue1 = []
 
-            person1 = self._fix_persona(person1, 1)
-            person2 = self._fix_persona(person2, 2)
-            dialog = DialogDataset._fix_dialog(dialog).split('||')
+    # 'Брэд: Эй, ты помнишь меня?\r\nКлаудия: Нет, не совсем.\r\nКлаудия: Я должна помнить?\r\n' -> dict {'Брэд': 1, 'Клаудия': 2}
+    def __proceed_dialogue(self, dialogue):
+        dialogue_dict = {}
+        last = 1
+        for i, line in enumerate(dialogue.split('\n')):
+            if len(line.split(': ')) > 1:
+                splits = line.strip().split(': ')
+                for speaker, text in zip(splits[::2], splits[1::2]):
+                    speaker = speaker.strip()
+                    if speaker not in dialogue_dict:
+                        dialogue_dict[speaker] = last
+                        last += 1
+        # apply dict to dialogue with replacing speakers with their numbers
+        for speaker in dialogue_dict:
+            dialogue = dialogue.replace(speaker + ': ', str(dialogue_dict[speaker]) + ': ')
 
-            dilogue += [person1]
-            dilogue += dialog
-
-            dilogue1 += [person2]
-            dilogue1 += dialog
-
-            dialogs += [dilogue]
-            dialogs += [dilogue1]
-        self.dialogs = dialogs
+        return dialogue.strip().lower() # .replace('\r', '\t').replace('\n', '\t')
 
     def __len__(self):
-        return len(self.dialogs)
+        return len(self.dataset)
     
     def __getitem__(self, idx):
-        dialog = self.dialogs[idx]
+        dialog = self.dataset[idx]
         if self.tokenizer is not None:
-            dialog = self.tokenizer(dialog, max_length=self.max_len, padding='max_length', truncation=True, return_tensors='pt')
+            dialog = self.tokenizer(dialog, max_length=self.max_len, padding='max_length', truncation=True)
         return dialog
     
 
 class YandexDataset(Dataset):
-    def __init__(self, dataset, conf, tokenizer=None, max_len=1024):
+    def __init__(self, dataset, tokenizer=None, max_len=1024):
         self.dataset = dataset
         self.tokenizer = tokenizer
         self.max_len = max_len
-        self.conf = conf
 
     def __len__(self):
         return len(self.dataset)
     
     def __getitem__(self, idx):
         elem = self.dataset[idx]
-        dialog = self.conf['user1'] + elem['question'] + '\t' + self.conf['user2'] + elem['answer']
+        dialog = '1: ' + elem['question'] + '\t' + '2: ' + elem['answer']
         if self.tokenizer is not None:
             dialog = self.tokenizer(dialog, max_length=self.max_len, padding='max_length', truncation=True)
         return dialog
