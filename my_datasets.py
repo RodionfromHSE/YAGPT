@@ -2,10 +2,10 @@ from torch.utils.data import Dataset
 
 class DiasumDataset(Dataset):
     def __init__(self, dataset, tokenizer=None, max_len=1024):
-        self.dataset = list(map(self.__proceed_dialogue, dataset['dialogue']))  
+        self.dataset = list(map(self.__proceed_dialogue, dataset['dialogue'])) #убрать 
         self.tokenizer = tokenizer
         self.max_len = max_len
-
+#history << [history + str peplica, str...]
 
     # 'Брэд: Эй, ты помнишь меня?\r\nКлаудия: Нет, не совсем.\r\nКлаудия: Я должна помнить?\r\n' -> dict {'Брэд': 1, 'Клаудия': 2}
     def __proceed_dialogue(self, dialogue):
@@ -28,7 +28,7 @@ class DiasumDataset(Dataset):
     def __len__(self):
         return len(self.dataset)
     
-    def __getitem__(self, idx):
+    def __getitem__(self, idx): #change: return self.tokenized[item]
         dialog = self.dataset[idx]
         if self.tokenizer is not None:
             dialog = self.tokenizer(dialog, max_length=self.max_len, padding='max_length', truncation=True)
