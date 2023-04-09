@@ -1,0 +1,8 @@
+{
+    "checkpoint": "AlexWortega/instruct_rugptMedium",
+    "additional_special_tokens": ["history: ", "speaker1: ", "speaker2: "],
+    "num_proc": 8,
+    "dataset_name": "under-tree/prepared-yagpt",
+    "block_size": 128,
+    "batch_size": 8
+}

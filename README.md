@@ -1,2 +1,0 @@
-# YAGPT
-Yet another GPT
