@@ -1,0 +1,7 @@
+args:
+  dataset: "under-tree/prepared-yagpt"
+  special_tokens: ["<history>", "<speaker1>", "<speaker2>"]
+  max_len: 128
+  batch_size: 8
+model:
+  model_name: "AlexWortega/instruct_rugptMedium"
