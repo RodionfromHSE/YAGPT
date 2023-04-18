@@ -2,6 +2,24 @@
 
 This is a simple GPT implementation in Python. It is based on the russian version of [GPT-2](https://huggingface.co/AlexWortega/instruct_rugptMedium).
 
+### Setup
+
+```python
+import subprocess
+import os
+
+repo_path = "YAGPT"
+branch = "dev"
+
+if not os.path.isdir(repo_path):
+    subprocess.run(["git", "clone", "https://github.com/RodionfromHSE/YAGPT.git"])
+    
+os.chdir(repo_path)
+subprocess.run(["git", "checkout", branch])
+subprocess.run(["git", "pull"])
+```
+This code will clone repository and switch to dev branch. It is recommended to use dev branch for development.
+
 ### Dataset (dataset.ipynb)
 
 Final dataset consists of 0.8M samples.
