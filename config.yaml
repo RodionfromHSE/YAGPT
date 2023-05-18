@@ -1,7 +1,26 @@
 args:
   dataset: "under-tree/prepared-yagpt"
-  special_tokens: ["<history>", "<speaker1>", "<speaker2>"]
+  special_tokens: 
+    history: "<|history|>"
+    speaker1: "<|speaker1|>"
+    speaker2: "<|speaker2|>"
+  num_proc: 4
   max_len: 128
   batch_size: 8
+dataset_generation:
+  datasets:
+    matreshka: "zjkarina/matreshka"
+    yandex: "its5Q/yandex-q"
+    diasum: "bragovo/diasum"
+  hf_repo: "under-tree/prepared-yagpt"
+  test_size: 0.15
 model:
   model_name: "AlexWortega/instruct_rugptMedium"
+  checkpoint: "under-tree/YAGPT"
+train:
+  model: "ai-forever/rugpt2large"
+  datasets: 
+    yagpt: "under-tree/prepared-yagpt"
+    matreshka: "zjkarina/matreshka"
+  epochs: 5
+  batch_size: 32
